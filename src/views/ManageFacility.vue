@@ -123,7 +123,7 @@
         </el-table-column>
         <el-table-column label="Actions" width="120" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link>Manage Bins</el-button>
+            <el-button size="small" type="primary" link @click="openBinDialog(scope.row)">Manage Bins</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -236,6 +236,21 @@
       >
     </template>
   </el-dialog>
+<!-- manage bins dialog -->
+ <el-dialog :title="`Manage Bins:${selectedStore?.name}`" v-model="binDialogVisible">
+  <!-- add newbin -->
+  <div style="display: flex; gap: 10px; margin-bottom: 15px; width: 100%;">
+  <el-input v-model="newBin.bin_code" placeholder="Bin Code" style="width: 120px;" />
+  <el-input v-model="newBin.description" placeholder="Description (Optional)" style="flex: 1;" />
+  <el-button type="primary" @click="submitBin" :loading="submitBinLoading">Add Bin</el-button>
+</div>
+ 
+   <!-- existing bins table -->
+    <el-table :data="storeBins" v-loading="loadingBins" border size="small" height="250" >
+    <el-table-column  prop="bin_code" label="Bin Code" width="120"/>
+    <el-table-column prop="description" label="Description" />
+    </el-table>
+ </el-dialog >
 </template>
 
 <script setup>
@@ -422,6 +437,55 @@ const submitManagerAssignment = async () => {
   }
 }
 
+const binDialogVisible=ref(false)
+const selectedStore=ref(null)
+const storeBins=ref([])
+const loadingBins=ref(false)
+const submitBinLoading=ref(false)
+
+const newBin=ref({
+  bin_code:'',
+  description:''
+})
+//fetch bins for selected store 
+const fetchBins=async(storeId)=>{
+  loadingBins.value=true;
+  try {
+    const response=await api.get(`/api/bins/store/${storeId}`);
+    storeBins.value=response.data
+  } catch (error) {
+    ElMessage.error('Failed to load bins')
+  }finally{
+    loadingBins.value=false
+  }
+}
+//open bin dialog and load data
+const openBinDialog=(store)=>{
+  selectedStore.value=store 
+  binDialogVisible.value=true 
+  fetchBins(store.store_id)
+}
+//submit new bin
+const submitBin=async()=>{
+  if(!newBin.value.bin_code)return ElMessage.warning('BIn code is required')
+  submitBinLoading.value=true
+  try {
+  
+    await api.post('/api/bins',{
+      store_id:selectedStore.value.store_id,
+      bin_code:newBin.value.bin_code,
+      description:newBin.value.description
+    })
+    ElMessage.success('BIn added successfully')
+    newBin.value={bin_code:'',description:''}
+    await fetchBins(selectedStore.value.store_id)
+
+  } catch (error) {
+    ElMessage.error(error.response?.data?.error || 'Failed to add bin')
+  }finally{
+    submitBinLoading.value=false
+  }
+}
 onMounted(() => {
   fetchFacilityDetails()
   fetchFacilityStaff()

@@ -5,8 +5,10 @@ import Register from "../views/Register.vue";
 import Layout from "../components/Layout.vue";
 import Facility from "../views/Facility.vue";
 import ManageFacility from "../views/ManageFacility.vue";
+import Inventory from "../views/Inventory.vue";
 import { useAuthStore } from "../stores/auth.js";
 import Roles from "../views/Roles.vue";
+
 
 
 const routes = [
@@ -48,6 +50,11 @@ const routes = [
         name: "ManageFacility",
         component:ManageFacility ,
       },
+      {
+        path:"inventory",
+        name:"Inventory",
+        component:Inventory
+      }
     ],
   },
 ];

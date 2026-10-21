@@ -1,0 +1,73 @@
+<template>
+  <div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Global inventory</h1>
+      <el-button type="primary" @click="fetchInventory" :loading="loading"
+        >Refresh List</el-button
+      >
+    </div>
+    <el-card shadow="hover">
+      <el-table
+        :data="inventoryList"
+        v-loading="loading"
+        border
+        style="width: 100%"
+        height="calc(100vh - 200px)"
+      >
+        <el-table-column prop="part_number" label="Part Number" width="150" />
+        <el-table-column prop="part_name" label="Part Name" width="200" />
+        <el-table-column
+          prop="part_description"
+          label="Description"
+          min-width="250"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="quantity"
+          label="Qty"
+          width="80"
+          align="center"
+        />
+        <el-table-column prop="name" label="Store" width="150" />
+        <el-table-column prop="bin_code" label="Bin Location" width="120" />
+        <el-table-column label="Status" width="100" align="center">
+          <template #default="scope">
+            <el-tag
+              :type="
+                scope.row.material_status === 'good' ? 'success' : 'danger'
+              "
+            >
+              {{ scope.row.material_status }}
+            </el-tag>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from "vue";
+import { ElMessage } from "element-plus";
+import api from "../api/axios";
+
+const inventoryList = ref([]);
+const loading = ref(false);
+
+const fetchInventory = async () => {
+  loading.value = true;
+  try {
+    const response = await api.get("/api/inventory");
+    inventoryList.value = response.data;
+    console.log(inventoryList.value)
+  } catch (error) {
+    ElMessage.error("Failed to load inventory data");
+    console.error(error);
+  } finally {
+    loading.value = false;
+  }
+};
+onMounted(() => {
+  fetchInventory();
+});
+</script>

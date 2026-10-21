@@ -249,8 +249,50 @@
     <el-table :data="storeBins" v-loading="loadingBins" border size="small" height="250" >
     <el-table-column  prop="bin_code" label="Bin Code" width="120"/>
     <el-table-column prop="description" label="Description" />
+    <el-table-column label="Actions" width="100" align="center">
+    <template #default="scope">
+      <el-button size="small" type="success" link @click="openInventoryDialog(scope.row)">Add Parts</el-button>
+    </template>
+  </el-table-column>
     </el-table>
  </el-dialog >
+ <!-- Add Parts to Bin Dialog -->
+<el-dialog :title="`Add Parts to Bin: ${selectedBin?.bin_code}`" v-model="inventoryDialogVisible" width="550px" append-to-body>
+  <el-form :model="newItem" label-width="120px" class="mt-4">
+    
+    <el-form-item label="Part Number" required>
+      <el-input v-model="newItem.partNumber" placeholder="e.g., SCR-43-MAIN" />
+    </el-form-item>
+    
+    <el-form-item label="Part Name" required>
+      <el-input v-model="newItem.partName" placeholder="e.g., 43 Inch Mainboard" />
+    </el-form-item>
+    
+    <el-form-item label="Description" required>
+      <el-input v-model="newItem.partDescription" type="textarea" placeholder="Detailed description or compatibility notes..." />
+    </el-form-item>
+    
+    <div style="display: flex; gap: 10px;">
+      <el-form-item label="Quantity" style="flex: 1;">
+        <el-input-number v-model="newItem.quantity" :min="0" style="width: 100%;" />
+      </el-form-item>
+      
+      <el-form-item label="Unit Price" style="flex: 1;" label-width="90px">
+        <el-input v-model="newItem.unitPrice" type="number" placeholder="0.00">
+          <template #prepend>KSh</template>
+        </el-input>
+      </el-form-item>
+    </div>
+
+  </el-form>
+  
+  <template #footer>
+    <span class="dialog-footer">
+      <el-button @click="inventoryDialogVisible = false">Cancel</el-button>
+      <el-button type="primary" @click="submitInventoryItem" :loading="submitItemLoading">Save Part</el-button>
+    </span>
+  </template>
+</el-dialog>
 </template>
 
 <script setup>
@@ -484,6 +526,61 @@ const submitBin=async()=>{
     ElMessage.error(error.response?.data?.error || 'Failed to add bin')
   }finally{
     submitBinLoading.value=false
+  }
+}
+// --- Inventory Management Refs ---
+const inventoryDialogVisible = ref(false)
+const selectedBin = ref(null)
+const submitItemLoading = ref(false)
+
+const newItem = ref({
+  partNumber: '',
+  partName: '',
+  partDescription: '',
+  quantity: 0,
+  unitPrice: null
+})
+
+// --- Inventory Management Functions ---
+const openInventoryDialog = (bin) => {
+  selectedBin.value = bin
+  inventoryDialogVisible.value = true
+  
+  // Reset form for a fresh entry
+  newItem.value = {
+    partNumber: '',
+    partName: '',
+    partDescription: '',
+    quantity: 0,
+    unitPrice: null
+  }
+}
+
+const submitInventoryItem = async () => {
+  
+  if (!newItem.value.partNumber || !newItem.value.partName || !newItem.value.partDescription) {
+    return ElMessage.warning('Please fill in Part Number, Name, and Description.')
+  }
+
+  submitItemLoading.value = true
+  try {
+    
+    await api.post('/api/bins/bin/items', {
+      locationId: selectedBin.value.location_id,
+      partNumber: newItem.value.partNumber,
+      partName: newItem.value.partName,
+      partDescription: newItem.value.partDescription,
+      quantity: newItem.value.quantity,
+      unitPrice: newItem.value.unitPrice
+    })
+    
+    ElMessage.success('Part added successfully!')
+    inventoryDialogVisible.value = false
+    
+  } catch (error) {
+    ElMessage.error(error.response?.data?.error || 'Failed to add part to bin.')
+  } finally {
+    submitItemLoading.value = false
   }
 }
 onMounted(() => {

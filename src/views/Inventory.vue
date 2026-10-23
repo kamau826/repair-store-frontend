@@ -2,13 +2,27 @@
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-gray-800">Global inventory</h1>
+     <div class="flex gap-4">
+      <el-input 
+      v-model="searchQuery"
+      placeholder="Search by part number or name..."
+      clearable
+      style="width: 250px;"
+      
+      />
+      <el-select v-model="statusFilter" placeholder="filter status" clearable style="width:150px ;">
+       <el-option  label="Good" value="good"/>
+       <el-option  label="defective" value="defective"/>
+      </el-select>
+     </div>
+
       <el-button type="primary" @click="fetchInventory" :loading="loading"
         >Refresh List</el-button
       >
     </div>
     <el-card shadow="hover">
       <el-table
-        :data="inventoryList"
+        :data="filteredInventoryList"
         v-loading="loading"
         border
         style="width: 100%"
@@ -47,12 +61,29 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted,computed } from "vue";
 import { ElMessage } from "element-plus";
 import api from "../api/axios";
 
 const inventoryList = ref([]);
 const loading = ref(false);
+
+const searchQuery=ref("")
+const statusFilter=ref("")
+
+const filteredInventoryList=computed(()=>{
+  return inventoryList.value.filter((item)=>{
+    const searchLower=searchQuery.value.toLowerCase()
+    const matchesSearch=
+    item.part_number.toLowerCase().includes(searchLower)||
+    item.part_name.toLowerCase().includes(searchLower)
+    
+    const matchesStatus=statusFilter.value?item.material_status===statusFilter.value:true
+    
+    return matchesSearch && matchesStatus
+  });
+})
+
 
 const fetchInventory = async () => {
   loading.value = true;

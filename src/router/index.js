@@ -8,7 +8,7 @@ import ManageFacility from "../views/ManageFacility.vue";
 import Inventory from "../views/Inventory.vue";
 import { useAuthStore } from "../stores/auth.js";
 import Roles from "../views/Roles.vue";
-
+import RepairTickets from "../views/RepairTickets.vue";
 
 
 const routes = [
@@ -48,13 +48,18 @@ const routes = [
       {
         path: "facilities/:id/manage",
         name: "ManageFacility",
-        component:ManageFacility ,
+        component: ManageFacility,
       },
       {
-        path:"inventory",
-        name:"Inventory",
-        component:Inventory
-      }
+        path: "inventory",
+        name: "Inventory",
+        component: Inventory,
+      },
+      {
+        path: "tickets",
+        name: "tickets",
+        component: RepairTickets,
+      },
     ],
   },
 ];

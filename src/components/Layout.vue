@@ -25,10 +25,15 @@
           <span>Repair Tickets</span>
         </el-menu-item>
 
-        <el-menu-item index="/inventory">
+        <el-menu-item index="/Material-requests">
+          <el-icon><Box /></el-icon>
+          <span>Material Reqs</span>
+        </el-menu-item>
+         <el-menu-item index="/inventory">
           <el-icon><Box /></el-icon>
           <span>Inventory</span>
         </el-menu-item>
+       
        
         <el-menu-item index="/roles">
          <el-icon><Key /></el-icon>

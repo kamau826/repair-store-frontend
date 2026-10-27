@@ -20,7 +20,7 @@
     </div>
 
     <el-card shadow="hover">
-      <el-table :data="filteredTickets" v-loading="loading" border style="width: 100%" height="calc(100vh - 200px)">
+      <el-table :data="filteredTickets" v-loading="loading" border style="width: 100%" height="calc(100vh - 200px)" sizw="small">
         <el-table-column prop="ticket_number" label="Ticket No." width="140" />
         
         <el-table-column label="Customer" width="180">
@@ -51,7 +51,9 @@
 
         <el-table-column label="Actions" width="100" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" link>Manage</el-button>
+            <el-button size="small" type="primary" link 
+            @click="$router.push(`/tickets/${scope.row.ticket_id}`)"
+            >Manage</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -114,7 +116,7 @@
         <el-form-item label="Assign Technician">
           <el-select v-model="newTicket.technicianId" placeholder="Select a technician (Optional)" clearable class="w-full">
             <el-option 
-              v-for="tech in techniciansList" 
+              v-for="tech in technicianList" 
               :key="tech.staff_id" 
               :label="`${tech.first_name} ${tech.last_name}`" 
               :value="tech.staff_id" 
@@ -144,7 +146,7 @@ const technicianList=ref([])
 
 const fetchTechnicians = async () => {
   try {
-    // Make sure this path matches the route you just created
+    
     const response = await api.get('/api/users/role/Technician') 
     techniciansList.value = response.data
   } catch (error) {

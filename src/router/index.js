@@ -9,7 +9,9 @@ import Inventory from "../views/Inventory.vue";
 import { useAuthStore } from "../stores/auth.js";
 import Roles from "../views/Roles.vue";
 import RepairTickets from "../views/RepairTickets.vue";
-
+import TicketDetails from "../views/TicketDetails.vue";
+import MaterialRequestList from "../views/MaterialRequestList.vue"
+import MaterialRequestDetails from "../views/MaterialRequestDetails.vue";
 
 const routes = [
   {
@@ -60,6 +62,21 @@ const routes = [
         name: "tickets",
         component: RepairTickets,
       },
+      {
+        path: "tickets/:id",
+        name: "TicketDetails",
+        component: TicketDetails,
+      },
+      {
+        path: "/material-requests",
+        name: "MaterialRequestsList",
+        component:MaterialRequestList
+      },
+      {
+        path:'material-requests/:id',
+        name:'MaterialRequestsDetails',
+        component:MaterialRequestDetails
+      }
     ],
   },
 ];

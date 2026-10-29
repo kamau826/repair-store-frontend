@@ -69,7 +69,7 @@
                 <el-card v-if="ticket?.status === 'completed'" shadow="never" class="border bg-green-50 border-green-200 mt-6">
                 <h4 class="font-semibold text-green-800 mb-2">Repair Completed</h4>
                 <p class="text-sm text-green-700 mb-4">The technician has finished this repair. The device is ready for customer pickup.</p>
-                <el-button type="success" size="large" @click="checkoutDialogVisible = true">
+                <el-button type="success" size="large" @click="checkOutDialogVisible = true">
                   Process Payment & Checkout
                 </el-button>
               </el-card>
@@ -116,37 +116,8 @@
         </div>
 
       </el-card>
-      <!-- storekeeper workspace -->
-       <el-tab-pane label="StoreKeeper Workspace" name="storekeeper" v-if="canViewStoreKeeper" >
-       <div class="space-y-6 mt-4">
-        <div class="p-4 border rounded bg-gray-50">
-          <h4>Pending Material Requests</h4>
-          <el-table :data="ticketMaterials" border stripe empty-text="No parts requested for this ticket"  >
-          <el-table-column prop="part_number" label="Part No." width="120" />
-                    <el-table-column prop="quantity_requested" label="Qty" width="80" align="center" />
-                    <el-table-column prop="status" label="Status" width="120">
-                      <template #default="scope">
-                        <el-tag :type="scope.row.status === 'Issued' ? 'success' : 'warning'">
-                          {{ scope.row.status }}
-                        </el-tag>
-                      </template>
-                    </el-table-column>
-                    <el-table-column label="Actions" align="right">
-                      <template #default="scope">
-                        <el-button 
-                          v-if="scope.row.status !== 'Issued'"
-                          type="primary" 
-                          size="small" 
-                          @click="issueMaterial(scope.row.request_id)"
-                        >
-                          Issue Part
-                        </el-button>
-                      </template>
-                    </el-table-column>
-          </el-table>
-        </div>
-       </div>
-       </el-tab-pane>
+    
+     
     </div>
 
     <div class="mt-6">
@@ -166,17 +137,64 @@
     </div>
 
   </div>
+  <!-- checkout -->
+   <el-dialog v-model="checkOutDialogVisible" title="Process Customer Checkout" width="600px">
+  <div class="space-y-4">
+    
+    <!-- Itemized Parts Table -->
+    <h4 class="font-semibold text-gray-700 border-b pb-1">Parts Used</h4>
+    <el-table :data="consumedMaterials" size="small" border stripe empty-text="No parts used">
+      <el-table-column prop="part_name" label="Part Name" />
+      <el-table-column prop="quantity_requested" label="Qty" width="70" align="center" />
+      <el-table-column label="Unit Price" width="100" align="right">
+        <template #default="scope">
+          KES {{ (scope.row.unit_price || 0).toLocaleString() }}
+        </template>
+      </el-table-column>
+      <el-table-column label="Subtotal" width="100" align="right">
+        <template #default="scope">
+          KES {{ (Number(scope.row.unit_price || 0) * Number(scope.row.quantity_requested || 1)).toLocaleString() }}
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <div class="grid grid-cols-2 gap-4 mt-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Labor Cost (KES)</label>
+        <el-input-number v-model="checkOutForm.laborCost" :min="0" :step="500" class="w-full" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Payment Method</label>
+        <el-select v-model="checkOutForm.paymentMethod" class="w-full">
+          <el-option label="M-Pesa" value="M-Pesa" />
+          <el-option label="Cash" value="Cash" />
+          <el-option label="Card" value="Card" />
+        </el-select>
+      </div>
+    </div>
+
+    <div class="bg-gray-100 p-4 rounded text-right mt-4 border">
+      <p class="text-sm text-gray-600 mb-1">Parts Total: KES {{ checkOutTotal - checkOutForm.laborCost }}</p>
+      <p class="text-lg font-bold text-gray-900">Total Due: KES {{ checkOutTotal }}</p>
+    </div>
+  </div>
+  <template #footer>
+    <el-button @click="checkOutDialogVisible = false">Cancel</el-button>
+    <el-button type="success" @click="submitCheckout" :loading="checkOutLoading">Submit & Print Receipt</el-button>
+  </template>
+</el-dialog>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute,useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
 import api from '../api/axios'
 
 // --- Setup ---
 const route = useRoute()
+const router=useRouter()
 const authStore = useAuthStore()
 const ticketId = route.params.id
 
@@ -221,11 +239,26 @@ const loadConsumedMaterials=async()=>{
   try {
     const response=await api.get(`/api/tickets/ticket/${ticketId}/consumed`)
     consumedMaterials.value=response.data
+    // console.log('consumed materials',consumedMaterials.value.unit_price.toLocaleString())
   } catch (error) {
     ElMessage.error("failed to load consumed materials")
   }
 }
+//checkout state
+const checkOutDialogVisible=ref(false)
+const checkOutLoading=ref(false)
+const checkOutForm=ref({
+  laborCost:0,
+  paymentMethod:'Cash'
+})
 
+//calculate total amount
+const checkOutTotal = computed(() => {
+  const partsCost = consumedMaterials.value.reduce((sum, item) => {
+    return sum + (Number(item.unit_price || 0) * Number(item.quantity_requested || 0))
+  }, 0)
+  return partsCost + Number(checkOutForm.value.laborCost || 0)
+})
 // --- API Fetches ---
 const loadTicketDetails = async () => {
   try {
@@ -316,6 +349,25 @@ try {
   completeLoading.value=false
 }
 }
+//submit checkout
+const submitCheckout=async()=>{
+  checkOutLoading.value=true 
+  try {
+    await api.patch(`/api/tickets/checkout/${ticketId}`,{
+      laborCost:checkOutForm.value.laborCost,
+      totalAmount:checkOutTotal.value,
+      paymentMethod:checkOutForm.value.paymentMethod
+    })
+    ElMessage.success("Payment processed and ticket closed.")
+    checkOutDialogVisible.value = false
+   router.push(`/receipt/${ticketId}`)
+  } catch (error) {
+    ElMessage.error("Failed to process checkout.")
+  }finally{
+    checkOutLoading.value = false
+  }
+}
+
 // --- Lifecycle ---
 onMounted(() => {
   loadTicketDetails()

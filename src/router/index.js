@@ -12,6 +12,7 @@ import RepairTickets from "../views/RepairTickets.vue";
 import TicketDetails from "../views/TicketDetails.vue";
 import MaterialRequestList from "../views/MaterialRequestList.vue"
 import MaterialRequestDetails from "../views/MaterialRequestDetails.vue";
+import Receipt from "../views/Receipt.vue";
 
 const routes = [
   {
@@ -76,6 +77,11 @@ const routes = [
         path:'material-requests/:id',
         name:'MaterialRequestsDetails',
         component:MaterialRequestDetails
+      },
+      {
+        path:'/receipt/:id',
+        name:'Receipt',
+        component:Receipt
       }
     ],
   },

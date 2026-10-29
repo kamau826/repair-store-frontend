@@ -112,23 +112,7 @@
     </el-dialog>
   </div>
 
-  <!-- New Technician Field -->
-        <el-form-item label="Assign Technician">
-          <el-select v-model="newTicket.technicianId" placeholder="Select a technician (Optional)" clearable class="w-full">
-            <el-option 
-              v-for="tech in technicianList" 
-              :key="tech.staff_id" 
-              :label="`${tech.first_name} ${tech.last_name}`" 
-              :value="tech.staff_id" 
-            />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="Estimated Cost">
-          <el-input v-model.number="newTicket.estimatedCost" type="number">
-            <template #prepend>KSh</template>
-          </el-input>
-        </el-form-item>
+  
 </template>
 
 <script setup>

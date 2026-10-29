@@ -30,6 +30,7 @@
       >
         <el-table-column prop="part_number" label="Part Number" width="150" />
         <el-table-column prop="part_name" label="Part Name" width="200" />
+        <el-table-column prop="unit_price" label="Price" width="180" />
         <el-table-column
           prop="part_description"
           label="Description"

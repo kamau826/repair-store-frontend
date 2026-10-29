@@ -66,6 +66,13 @@
                     <el-button type="success" @click="updateStatus" :loading="statusLoading">Update</el-button>
                   </div>
                 </div>
+                <el-card v-if="ticket?.status === 'completed'" shadow="never" class="border bg-green-50 border-green-200 mt-6">
+                <h4 class="font-semibold text-green-800 mb-2">Repair Completed</h4>
+                <p class="text-sm text-green-700 mb-4">The technician has finished this repair. The device is ready for customer pickup.</p>
+                <el-button type="success" size="large" @click="checkoutDialogVisible = true">
+                  Process Payment & Checkout
+                </el-button>
+              </el-card>
 
               </div>
             </el-tab-pane>
@@ -74,7 +81,7 @@
             <el-tab-pane label="Technician Workspace" name="technician" v-if="canViewTechnician">
               <div class="space-y-6 mt-4">
                 
-                <div class="p-4 border rounded bg-gray-50">
+                <div class="p-4 border rounded bg-gray-50" v-if="ticket.status !=='completed'">
                   <h4 class="font-semibold mb-3">1. Request Spare Parts</h4>
                   <div class="flex gap-4 mb-4">
                     <el-select v-model="materialForm.material_id" filterable placeholder="Search Inventory..." class="flex-1">
@@ -94,7 +101,7 @@
                 <div class="p-4 border rounded bg-gray-50">
                   <h4 class="font-semibold mb-3">2. Repair Notes</h4>
                   <el-input type="textarea" v-model="diagnosisNotes" rows="3" placeholder="Enter diagnosis..." class="mb-4" />
-                  <el-button type="success" class="w-full">Complete Repair</el-button>
+                  <el-button type="success" class="w-full" @click="completeRepair">Complete Repair</el-button>
                 </div>
 
               </div>
@@ -141,6 +148,23 @@
        </div>
        </el-tab-pane>
     </div>
+
+    <div class="mt-6">
+      <el-card shadow="never" class="border">
+        <h3 class="font-bold text-lg mb-4 border-p pb-2">Materials Counsumed</h3>
+        <el-table :data="consumedMaterials" border stripe empty-text="no materials consumed ">
+           <el-table-column prop="part_number" label="part_number" width="180"/>
+          <el-table-column prop="part_name" label="part_name"/>
+                <el-table-column prop="quantity_requested" label="QTY" width="100" align="center"/>
+                <el-table-column label="Date Issued" width="200" >
+                 <template #default="scope">
+                  {{ scope.row.issued_at? new Date(scope.row.issued_at).toLocaleString():"N/A" }}
+                 </template>
+                </el-table-column>
+        </el-table>
+      </el-card>
+    </div>
+
   </div>
 </template>
 
@@ -188,6 +212,19 @@ const inventoryList = ref([])
 const diagnosisNotes = ref('')
 const materialForm = ref({ material_id: null, quantity_requested: 1 })
 const requestLoading = ref(false)
+const completeLoading=ref(false)
+
+//ticket
+const consumedMaterials=ref([])
+
+const loadConsumedMaterials=async()=>{
+  try {
+    const response=await api.get(`/api/tickets/ticket/${ticketId}/consumed`)
+    consumedMaterials.value=response.data
+  } catch (error) {
+    ElMessage.error("failed to load consumed materials")
+  }
+}
 
 // --- API Fetches ---
 const loadTicketDetails = async () => {
@@ -264,10 +301,25 @@ const requestMaterial = async () => {
     requestLoading.value = false
   }
 }
-
+const completeRepair=async()=>{
+  if(!diagnosisNotes.value)return ElMessage.warning("please enter repair notes")
+  completeLoading.value=true 
+try {
+  await api.patch(`/api/tickets/complete/${ticketId}`,{
+    notes:diagnosisNotes.value
+  })
+  ElMessage.success("Repair completed successfully")
+  loadTicketDetails()
+} catch (error) {
+  ElMessage.error("Failed to complete repair",error)
+}finally{
+  completeLoading.value=false
+}
+}
 // --- Lifecycle ---
 onMounted(() => {
   loadTicketDetails()
+  loadConsumedMaterials()
   // Load necessary dropdown data based on roles
   if (canViewReception.value) loadTechnicians()
   if (canViewTechnician.value) loadInventory()

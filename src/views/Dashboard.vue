@@ -103,7 +103,7 @@ const fetchDashboardData = async () => {
     // For now, making parallel requests to your existing endpoints to calculate the stats
     const [ticketsRes, requestsRes] = await Promise.all([
       api.get('/api/tickets'),
-      api.get('/api/materials/requests/pending') // Adjust this URL to match your material requests route
+      api.get('/api/inventory/requests/pending') // Adjust this URL to match your material requests route
     ])
 
     const allTickets = ticketsRes.data || []

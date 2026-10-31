@@ -1,26 +1,43 @@
 <template>
-  <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">Repair Tickets</h1>
+  <!-- Reduced padding on mobile (p-3) vs desktop (sm:p-6) -->
+  <div class="p-3 sm:p-6">
+    
+    <!-- Action Bar: Stacks vertically on mobile, horizontal on lg screens -->
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+      <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Repair Tickets</h1>
       
-      <div class="flex gap-4">
+      <!-- Filters and Buttons: Full width on mobile, auto width on larger screens -->
+      <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
         <el-input
           v-model="searchQuery"
           placeholder="Search ticket or customer..."
           clearable
-          style="width: 250px"
+          class="w-full sm:w-[250px]"
         />
-        <el-select v-model="statusFilter" placeholder="Filter Status" clearable style="width: 150px">
+        <el-select 
+          v-model="statusFilter" 
+          placeholder="Filter Status" 
+          clearable 
+          class="w-full sm:w-[150px]"
+        >
           <el-option label="Open" value="open" />
           <el-option label="In Progress" value="in_progress" />
           <el-option label="Completed" value="completed" />
         </el-select>
-        <el-button type="primary" @click="openNewTicketDialog">Create Ticket</el-button>
+        <el-button 
+          type="primary" 
+          @click="openNewTicketDialog" 
+          class="w-full sm:w-auto"
+        >
+          Create Ticket
+        </el-button>
       </div>
     </div>
 
-    <el-card shadow="hover">
-      <el-table :data="filteredTickets" v-loading="loading" border style="width: 100%" height="calc(100vh - 200px)" sizw="small">
+    <!-- Table Container -->
+    <el-card shadow="hover" class="border-none sm:border-solid">
+      <!-- Fixed typo 'sizw' to 'size' and adjusted height for mobile spacing -->
+      <el-table :data="filteredTickets" v-loading="loading" border style="width: 100%" height="calc(100vh - 220px)" size="small">
         <el-table-column prop="ticket_number" label="Ticket No." width="140" />
         
         <el-table-column label="Customer" width="180">
@@ -49,35 +66,37 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="Actions" width="100" align="center">
+        <el-table-column label="Actions" width="100" align="center" fixed="right">
           <template #default="scope">
             <el-button size="small" type="primary" link 
             @click="$router.push(`/tickets/${scope.row.ticket_id}`)"
-            >Manage</el-button>
+            >Edit</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
 
-    <!-- Create New Ticket Dialog -->
-    <el-dialog title="Create Repair Ticket" v-model="dialogVisible" width="650px">
-      <el-form :model="newTicket" label-width="130px">
+    <!-- Create New Ticket Dialog: Responsive width (95% mobile, max 650px desktop) -->
+    <el-dialog title="Create Repair Ticket" v-model="dialogVisible" width="95%" style="max-width: 650px;">
+      <el-form :model="newTicket" label-width="130px" label-position="top" class="sm:label-position-right">
+        
         <el-divider content-position="left">Customer Details</el-divider>
-        <div class="flex gap-4">
-          <el-form-item label="First Name" required class="flex-1">
+        <!-- Stack inputs vertically on mobile, side-by-side on sm -->
+        <div class="flex flex-col sm:flex-row sm:gap-4">
+          <el-form-item label="First Name" required class="flex-1 mb-4 sm:mb-0">
             <el-input v-model="newTicket.firstName" />
           </el-form-item>
           <el-form-item label="Last Name" required class="flex-1">
             <el-input v-model="newTicket.lastName" />
           </el-form-item>
         </div>
-        <el-form-item label="Phone Number" required>
+        <el-form-item label="Phone Number" required class="mt-4">
           <el-input v-model="newTicket.phone" placeholder="e.g., 0712345678" />
         </el-form-item>
 
         <el-divider content-position="left">Device Details</el-divider>
-        <div class="flex gap-4">
-          <el-form-item label="Category" required class="flex-1">
+        <div class="flex flex-col sm:flex-row sm:gap-4">
+          <el-form-item label="Category" required class="flex-1 mb-4 sm:mb-0">
             <el-select v-model="newTicket.category" placeholder="Select" class="w-full">
               <el-option label="TV" value="TV" />
               <el-option label="Fridge" value="Fridge" />
@@ -90,7 +109,7 @@
           </el-form-item>
         </div>
         
-        <el-form-item label="Serial Number">
+        <el-form-item label="Serial Number" class="mt-4">
           <el-input v-model="newTicket.serialNumber" />
         </el-form-item>
 
@@ -106,15 +125,14 @@
       </el-form>
       
       <template #footer>
-        <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="submitTicket" :loading="submitLoading">Save Ticket</el-button>
+        <div class="flex justify-end gap-2">
+          <el-button @click="dialogVisible = false">Cancel</el-button>
+          <el-button type="primary" @click="submitTicket" :loading="submitLoading">Save Ticket</el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
-
-  
 </template>
-
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'

@@ -99,14 +99,14 @@ const recentTickets = ref([])
 const fetchDashboardData = async () => {
   loading.value = true
   try {
-    // You can replace these with a single optimized backend endpoint later (e.g., /api/dashboard/stats)
-    // For now, making parallel requests to your existing endpoints to calculate the stats
+    
+   
     const [ticketsRes, requestsRes] = await Promise.all([
       api.get('/api/tickets'),
       api.get('/api/inventory/requests/pending') // Adjust this URL to match your material requests route
     ])
 
-    const allTickets = ticketsRes.data || []
+    const allTickets = ticketsRes.data.tickets || []
     
     // Calculate stats
     stats.value.openTickets = allTickets.filter(t => t.status !== 'closed' && t.status !== 'completed').length

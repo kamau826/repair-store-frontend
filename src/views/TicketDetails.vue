@@ -39,9 +39,9 @@
             <!-- RECEPTION TAB -->
             <el-tab-pane label="Reception Controls" name="reception" v-if="canViewReception">
               <div class="space-y-6 mt-4">
-                
-                <div class="p-4 border rounded bg-gray-50">
-                  <h4 class="font-semibold mb-3">1. Assign Technician</h4>
+                <!-- assign or change technician -->
+                <div class="p-4 border rounded bg-gray-50" v-if="ticket.status !=='closed' ">
+                  <h4 class="font-semibold mb-3">1.{{ ticket.technician_id?'Change Techncian':'Assign Technician' }} </h4>
                   <div class="flex gap-4">
                     <el-select v-model="selectedTechnician" placeholder="Select Technician" class="flex-1">
                       <el-option 
@@ -54,8 +54,8 @@
                     <el-button type="primary" @click="assignTechnician" :loading="assignLoading">Assign</el-button>
                   </div>
                 </div>
-
-                <div class="p-4 border rounded bg-gray-50">
+                <!-- update ticket status -->
+                <div class="p-4 border rounded bg-gray-50" v-if="ticket.status !=='closed' ">
                   <h4 class="font-semibold mb-3">2. Ticket Status</h4>
                   <div class="flex gap-4">
                     <el-select v-model="ticketStatus" class="flex-1">
@@ -66,6 +66,19 @@
                     <el-button type="success" @click="updateStatus" :loading="statusLoading">Update</el-button>
                   </div>
                 </div>
+               <!-- client approve quatation -->
+               <el-card shadow="never" class="border bg-green-50 border-green-200 mt-6 ">
+                 <h1 class="font-semibold text-green-800 tex-xl sm:text-2xl">Client approve quote?</h1>
+              
+                <div class="flex flex-col sm:flex-row justify-between">
+                   <h3 class="text-xl sm:text-2xl font-light">The repair cost is</h3>
+                   <p class="text-xl text-blue-400">Labor cost :{{ ticket.labor_cost }}</p>
+                   <p class="text-xl text-blue-400">material Cost:{{ Number(consumedMaterials.unit_price) *Number(consumedMaterials.quantity_requested) }}</p>
+
+                </div>
+                 
+               </el-card>
+
                 <el-card v-if="ticket?.status === 'completed'" shadow="never" class="border bg-green-50 border-green-200 mt-6">
                 <h4 class="font-semibold text-green-800 mb-2">Repair Completed</h4>
                 <p class="text-sm text-green-700 mb-4">The technician has finished this repair. The device is ready for customer pickup.</p>
@@ -81,7 +94,7 @@
             <el-tab-pane label="Technician Workspace" name="technician" v-if="canViewTechnician">
               <div class="space-y-6 mt-4">
                 
-                <div class="p-4 border rounded bg-gray-50" v-if="ticket.status !=='completed'">
+                <div class="p-4 border rounded bg-gray-50" v-if="ticket.status !=='completed' && ticket.status!=='closed'">
                   <h4 class="font-semibold mb-3">1. Request Spare Parts</h4>
                   <div class="flex gap-4 mb-4">
                     <el-select v-model="materialForm.material_id" filterable placeholder="Search Inventory..." class="flex-1">
@@ -98,7 +111,7 @@
                   </div>
                 </div>
 
-                <div class="p-4 border rounded bg-gray-50">
+                <div class="p-4 border rounded bg-gray-50" v-if="ticket.status !=='closed'">
                   <h4 class="font-semibold mb-3">2. Repair Notes</h4>
                   <el-input type="textarea" v-model="diagnosisNotes" rows="3" placeholder="Enter diagnosis..." class="mb-4" />
                   <el-button type="success" class="w-full" @click="completeRepair">Complete Repair</el-button>

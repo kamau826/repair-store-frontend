@@ -1,5 +1,5 @@
 <template>
-  <!-- Reduced padding on mobile (p-3) vs desktop (sm:p-6) -->
+
   <div class="p-3 sm:p-6">
     
     <!-- Action Bar: Stacks vertically on mobile, horizontal on lg screens -->
@@ -70,7 +70,7 @@
           <template #default="scope">
             <el-button size="small" type="primary" link 
             @click="$router.push(`/tickets/${scope.row.ticket_id}`)"
-            >Edit</el-button>
+            >Operate</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -150,7 +150,7 @@ const fetchTechnicians = async () => {
   try {
     
     const response = await api.get('/api/users/role/Technician') 
-    techniciansList.value = response.data
+    technicianList.value = response.data
   } catch (error) {
     console.error('Failed to load technicians:', error)
   }

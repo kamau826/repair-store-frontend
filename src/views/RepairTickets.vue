@@ -66,11 +66,18 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="Actions" width="100" align="center" fixed="right">
+        <el-table-column label="Actions" width="140" align="center" fixed="right">
           <template #default="scope">
-            <el-button size="small" type="primary" link 
-            @click="$router.push(`/tickets/${scope.row.ticket_id}`)"
-            >Operate</el-button>
+            <div class="flex justify-center gap-2 items-center">
+              <el-button size="small" type="primary" link 
+                @click="$router.push(`/tickets/${scope.row.ticket_id}`)">
+                Manage
+              </el-button>
+              <el-button size="small" type="info" link title="Print Receipt"
+                @click="openPrintView(scope.row.ticket_id)">
+                <el-icon class="text-lg"><Printer /></el-icon>
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>

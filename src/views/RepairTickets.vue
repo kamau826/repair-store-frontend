@@ -74,7 +74,7 @@
                 Manage
               </el-button>
               <el-button size="small" type="info" link title="Print Receipt"
-                @click="openPrintView(scope.row.ticket_id)">
+                @click="$router.push(`/tickets/${scope.row.ticket_id}/print`)">
                 <el-icon class="text-lg"><Printer /></el-icon>
               </el-button>
             </div>

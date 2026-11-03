@@ -13,6 +13,8 @@ import TicketDetails from "../views/TicketDetails.vue";
 import MaterialRequestList from "../views/MaterialRequestList.vue"
 import MaterialRequestDetails from "../views/MaterialRequestDetails.vue";
 import Receipt from "../views/Receipt.vue";
+import TicketPrint from '../views/TicketPrint.vue'
+
 
 const routes = [
   {
@@ -82,6 +84,12 @@ const routes = [
         path:'/receipt/:id',
         name:'Receipt',
         component:Receipt
+      },
+      {
+        path:'/tickets/:id/print',
+        name:'TicketPrint',
+        component:TicketPrint,
+        meta:{requiresAuth:true,hideLayout:true}
       }
     ],
   },

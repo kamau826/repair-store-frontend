@@ -94,22 +94,22 @@
       <!-- RESPONSIVE HEADER -->
       <el-header class="bg-white shadow-sm flex items-center justify-between px-4 sm:px-6 border-b border-gray-200">
         <!-- Left Side: Hamburger & Title -->
-        <div class="flex items-center gap-3">
+        <div v-if="!route.meta.hideLayout" class="flex items-center gap-3">
           <el-icon 
             class="md:hidden text-gray-700 text-2xl cursor-pointer" 
             @click="mobileMenuOpen = true"
           >
             <Expand />
           </el-icon>
-          <div class="text-gray-700 font-semibold text-base sm:text-lg truncate">
+          <div v-if="!route.meta.hideLayout" class="text-gray-700 font-semibold text-base sm:text-lg truncate">
             {{ currentRouteName }}
           </div>
         </div>
         
         <!-- Right Side: Welcome & Logout -->
-        <div class="flex items-center gap-3">
+        <div v-if="!route.meta.hideLayout"class="flex items-center gap-3">
           <!-- Hidden on mobile phones (sm and below) -->
-          <span class="text-sm text-gray-600 hidden sm:block truncate max-w-[200px]">
+          <span  class="text-sm text-gray-600 hidden sm:block truncate max-w-[200px]">
             Welcome, {{ authStore.fullName }}
           </span>
           <el-button type="danger" plain size="small" @click="handleLogout">Logout</el-button>

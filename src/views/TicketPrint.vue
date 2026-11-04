@@ -12,8 +12,8 @@
         </div>
         <div class="text-right">
           <!-- Replace with your actual repair shop name -->
-          <h2 class="font-bold text-xl text-gray-900">Carlcare Service Limited</h2>
-          <p class="text-sm">Runda Mall, Nairobi</p>
+          <h2 class="font-bold text-xl text-gray-900">Destiny Modern Electronics</h2>
+          <p class="text-sm">Luthuli avenue, Nairobi</p>
         </div>
       </div>
 

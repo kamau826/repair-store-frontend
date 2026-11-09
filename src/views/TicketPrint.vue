@@ -98,6 +98,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../api/axios'
+import { ElMessage } from 'element-plus'
 
 const route = useRoute()
 const ticket = ref({})

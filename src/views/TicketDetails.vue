@@ -73,7 +73,7 @@
                 <div class="flex flex-col sm:flex-row justify-between">
                    <h3 class="text-xl sm:text-2xl font-light">The repair cost is</h3>
                    <p class="text-xl text-blue-400">Labor cost :{{ ticket.labor_cost }}</p>
-                   <p class="text-xl text-blue-400">material Cost:{{ Number(consumedMaterials.unit_price) *Number(consumedMaterials.quantity_requested) }}</p>
+                   <p class="text-xl text-blue-400">material Cost:{{totalMaterialsCost}}</p>
 
                 </div>
                  
@@ -113,8 +113,8 @@
 
                 <div class="p-4 border rounded bg-gray-50" v-if="ticket.status !=='closed'">
                   <h4 class="font-semibold mb-3">2. Repair Notes</h4>
-                  <el-input type="textarea" v-model="diagnosisNotes" rows="3" placeholder="Enter diagnosis..." class="mb-4" />
-                  <el-button type="success" class="w-full" @click="completeRepair">Complete Repair</el-button>
+                  <el-input type="textarea" v-model="diagnosisNotes" :rows="3" placeholder="Enter diagnosis..." class="mb-4" />
+                  <el-button type="success" class="w-full" @click="completeRepair" :loading="completeLoading">Complete Repair</el-button>
                 </div>
 
               </div>
@@ -264,7 +264,11 @@ const checkOutForm=ref({
   laborCost:0,
   paymentMethod:'Cash'
 })
-
+const totalMaterialsCost = computed(() => {
+  return consumedMaterials.value.reduce((sum, item) => {
+    return sum + (Number(item.unit_price || 0) * Number(item.quantity_requested || 0))
+  }, 0)
+})
 //calculate total amount
 const checkOutTotal = computed(() => {
   const partsCost = consumedMaterials.value.reduce((sum, item) => {

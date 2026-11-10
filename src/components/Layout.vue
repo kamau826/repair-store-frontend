@@ -26,6 +26,10 @@
           <el-icon><Box /></el-icon>
           <span>Material Reqs</span>
         </el-menu-item>
+        <el-menu-item index="/invoices/create">
+          <el-icon><DocumentAdd /></el-icon>
+          <span>invoice/receipt</span>
+        </el-menu-item>
         <el-menu-item index="/inventory">
           <el-icon><Box /></el-icon>
           <span>Inventory</span>
@@ -73,6 +77,11 @@
           <el-icon><Box /></el-icon>
           <span>Material Reqs</span>
         </el-menu-item>
+         <el-menu-item index="/invoices/create">
+          <el-icon><DocumentAdd /></el-icon>
+          <span>invoice/receipt</span>
+        </el-menu-item>
+    
         <el-menu-item index="/inventory">
           <el-icon><Box /></el-icon>
           <span>Inventory</span>
@@ -128,7 +137,7 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue';
 import {useRoute,useRouter} from 'vue-router'
-import { Menu, Document, Box, Key, House, Expand } from '@element-plus/icons-vue';
+import { Menu, Document, Box, Key, House, Expand,DocumentAdd } from '@element-plus/icons-vue';
 import { useAuthStore } from '../stores/auth';
 
 const route = useRoute()

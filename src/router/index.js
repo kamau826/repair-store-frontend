@@ -14,7 +14,7 @@ import MaterialRequestList from "../views/MaterialRequestList.vue"
 import MaterialRequestDetails from "../views/MaterialRequestDetails.vue";
 import Receipt from "../views/Receipt.vue";
 import TicketPrint from '../views/TicketPrint.vue'
-
+import CreateInvoice from "../views/CreateInvoice.vue";
 
 const routes = [
   {
@@ -90,6 +90,12 @@ const routes = [
         name:'TicketPrint',
         component:TicketPrint,
         meta:{requiresAuth:true,hideLayout:true}
+      },
+      {
+        path:'invoices/create',
+        name:'CreateInvoice',
+        component:CreateInvoice,
+        
       }
     ],
   },

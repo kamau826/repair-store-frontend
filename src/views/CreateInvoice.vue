@@ -15,9 +15,9 @@
         >
           <el-option 
             v-for="customer in customersList" 
-            :key="customer.customer_id" 
-            :label="customer.name || customer.company_name" 
-            :value="customer.customer_id" 
+            :key="customer.customer_uuid" 
+            :label="customer.first_name || customer.company_name" 
+            :value="customer.customer_uuid" 
           />
         </el-select>
       </div>
@@ -127,7 +127,7 @@ import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { Delete } from '@element-plus/icons-vue';
-import axios from 'axios';
+
 import api from '../api/axios'
 
 
@@ -178,8 +178,8 @@ const fetchUnbilledTickets = async (customerId) => {
   isLoadingTickets.value = true;
   try {
     // Assuming 'Fixed' is the status indicating ready for billing, and payment_status logic is handled via invoices now
-    const response = await api.get(`/repair-tickets?customer_id=${customerId}&status=Fixed`);
-    unbilledTickets.value = response.data;
+    const response = await api.get(`/api/tickets?customer_id=${customerId}&status=repaired`);
+    unbilledTickets.value = response.data ||[];
   } catch (error) {
     console.error('Error fetching tickets:', error);
     ElMessage.error('Failed to load unbilled tickets.');

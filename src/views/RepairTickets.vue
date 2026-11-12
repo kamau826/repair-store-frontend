@@ -191,7 +191,7 @@ const fetchTickets = async () => {
   try {
     const response = await api.get('/api/tickets')
     // The backend returns { tickets: result.rows }
-    ticketsList.value = response.data.tickets || []
+    ticketsList.value = response.data || []
   } catch (error) {
     ElMessage.error('Failed to load tickets.')
     console.error(error)

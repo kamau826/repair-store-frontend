@@ -250,9 +250,10 @@ const consumedMaterials=ref([])
 
 const loadConsumedMaterials=async()=>{
   try {
+    console.log("ticket id",ticketId)
     const response=await api.get(`/api/tickets/ticket/${ticketId}/consumed`)
-    consumedMaterials.value=response.data
-    console.log('consumed materials',consumedMaterials.value.unit_price.toLocaleString())
+    consumedMaterials.value=response.data||[]
+    // console.log('consumed materials',consumedMaterials.value.unit_price.toLocaleString())
   } catch (error) {
     ElMessage.error("failed to load consumed materials")
   }
